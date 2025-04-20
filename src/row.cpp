@@ -1,4 +1,5 @@
 #include <hyprland/src/config/ConfigValue.hpp>
+#include <hyprland/src/config/ConfigManager.hpp>
 #include <hyprland/src/managers/EventManager.hpp>
 #include <hyprland/src/plugins/PluginAPI.hpp>
 #include <hyprland/src/render/Renderer.hpp>
