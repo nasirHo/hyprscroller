@@ -1001,7 +1001,7 @@ bool Row::update_sizes(PHLMONITOR monitor)
     auto *const PGAPSOUT = (CCssGapData *)(PGAPSOUTDATA.ptr())->getData();
     const auto WORKSPACERULE = g_pConfigManager->getWorkspaceRuleFor(g_pCompositor->getWorkspaceByID(workspace));
     // For now, support only constant CCssGapData
-    auto gaps_in = WORKSPACERULE.gapsIn.value_or(*PGAPSIN).top;
+    auto gaps_in = WORKSPACERULE.gapsIn.value_or(*PGAPSIN).m_top;
     auto gaps_out = WORKSPACERULE.gapsOut.value_or(*PGAPSOUT);
     const auto SIZE = monitor->vecSize;
     const auto POS = monitor->vecPosition;
@@ -1009,10 +1009,10 @@ bool Row::update_sizes(PHLMONITOR monitor)
     const auto BOTTOMRIGHT = monitor->vecReservedBottomRight;
 
     full = Box(POS, SIZE);
-    const Box newmax = Box(POS.x + TOPLEFT.x + gaps_out.left,
-                           POS.y + TOPLEFT.y + gaps_out.top,
-                           SIZE.x - TOPLEFT.x - BOTTOMRIGHT.x - gaps_out.left - gaps_out.right,
-                           SIZE.y - TOPLEFT.y - BOTTOMRIGHT.y - gaps_out.top - gaps_out.bottom);
+    const Box newmax = Box(POS.x + TOPLEFT.x + gaps_out.m_left,
+                           POS.y + TOPLEFT.y + gaps_out.m_top,
+                           SIZE.x - TOPLEFT.x - BOTTOMRIGHT.x - gaps_out.m_left - gaps_out.m_right,
+                           SIZE.y - TOPLEFT.y - BOTTOMRIGHT.y - gaps_out.m_top - gaps_out.m_bottom);
     bool changed = gap != gaps_in;
     gap = gaps_in;
 

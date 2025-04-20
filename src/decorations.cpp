@@ -70,8 +70,8 @@ void SelectionBorders::draw(PHLMONITOR pMonitor, float const& a) {
     float      a1       = a * (ANIMATED ? m_pWindow->m_fBorderFadeAnimationProgress->value() : 1.f);
 
     if (m_pWindow->m_fBorderAngleAnimationProgress->enabled()) {
-        grad.m_fAngle += m_pWindow->m_fBorderAngleAnimationProgress->value() * M_PI * 2;
-        grad.m_fAngle = normalizeAngleRad(grad.m_fAngle);
+        grad.m_angle += m_pWindow->m_fBorderAngleAnimationProgress->value() * M_PI * 2;
+        grad.m_angle = normalizeAngleRad(grad.m_angle);
     }
 
     int        borderSize = m_pWindow->getRealBorderSize();
