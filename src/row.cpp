@@ -20,7 +20,7 @@ Row::Row(WORKSPACEID workspace)
       reorder(Reorder::Auto), pinned(nullptr), active(nullptr)
 {
     post_event("overview");
-    const auto PMONITOR = g_pCompositor->m_pLastMonitor.lock();
+    const auto PMONITOR = g_pCompositor->m_lastMonitor.lock();
     set_mode(scroller_sizes.get_mode(PMONITOR));
     update_sizes(PMONITOR);
 }
@@ -367,7 +367,7 @@ void Row::resize_active_column(int step)
             static auto* const *CYCLESIZE_CLOSEST = (Hyprlang::INT* const *)HyprlandAPI::getConfigValue(PHANDLE, "plugin:scroller:cyclesize_closest")->getDataStaticPtr();
             if (**CYCLESIZE_CLOSEST) {
                 double fraction = active->data()->get_geom_w() / max.w;
-                width = scroller_sizes.get_column_closest_width(g_pCompositor->m_pLastMonitor, fraction, step);
+                width = scroller_sizes.get_column_closest_width(g_pCompositor->m_lastMonitor, fraction, step);
             } else {
                 width = scroller_sizes.get_column_default_width(get_active_window());
             }

@@ -136,7 +136,7 @@ void SelectionBorders::damageEntire() {
     CRegion borderRegion(surfaceBoxExpandedBorder);
     borderRegion.subtract(surfaceBoxShrunkRounding);
 
-    for (auto const& m : g_pCompositor->m_vMonitors) {
+    for (auto const& m : g_pCompositor->m_monitors) {
         if (!g_pHyprRenderer->shouldRenderWindow(m_pWindow.lock(), m)) {
             const CRegion monitorRegion({m->vecPosition, m->vecSize});
             borderRegion.subtract(monitorRegion);

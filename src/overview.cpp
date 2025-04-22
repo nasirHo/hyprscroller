@@ -88,7 +88,7 @@ static void hookRenderLayer(void *thisptr, PHLLS layer, PHLMONITOR monitor, time
 // Needed to scale the range of the cursor in overview mode to cover the whole area.
 static CBox hookLogicalBox(void *thisptr) {
     CMonitor *monitor = static_cast<CMonitor *>(thisptr);
-    if (g_pCompositor->m_pLastMonitor.get() != monitor)
+    if (g_pCompositor->m_lastMonitor.get() != monitor)
         return CBox();
 
     WORKSPACEID workspace = monitor->activeSpecialWorkspaceID();
@@ -108,7 +108,7 @@ static CBox hookLogicalBox(void *thisptr) {
 
 // Needed to render the HW cursor at the right position
 static Vector2D hookGetCursorPosForMonitor(void *thisptr, PHLMONITOR monitor) {
-    if (g_pCompositor->m_pLastMonitor.lock() != monitor)
+    if (g_pCompositor->m_lastMonitor.lock() != monitor)
         return { 0.0, 0.0 };
 
     WORKSPACEID workspace = monitor->activeSpecialWorkspaceID();
@@ -130,10 +130,10 @@ static Vector2D hookGetCursorPosForMonitor(void *thisptr, PHLMONITOR monitor) {
 static void hookRenderSoftwareCursorsFor(void *thisptr, PHLMONITOR monitor, timespec* now, CRegion& damage, std::optional<Vector2D> overridePos) {
     // Should render the cursor for all the extent of the workspace, and only on
     // overview workspaces when there is one active, and it is in the current monitor.
-    PHLMONITOR last = g_pCompositor->m_pLastMonitor.lock();
+    PHLMONITOR last = g_pCompositor->m_lastMonitor.lock();
     PHLMONITOR mon;
     bool overview_enabled = false;
-    for (auto const& m : g_pCompositor->m_vMonitors) {
+    for (auto const& m : g_pCompositor->m_monitors) {
         WORKSPACEID workspace = m->activeSpecialWorkspaceID();
         if (!workspace)
             workspace = m->activeWorkspaceID();
@@ -163,7 +163,7 @@ static void hookRenderSoftwareCursorsFor(void *thisptr, PHLMONITOR monitor, time
 // Needed to fake an overview monitor's desktop contains all its windows
 // instead of some of them being in the other monitor.
 static Vector2D hookClosestValid(void *thisptr, const Vector2D& pos) {
-    PHLMONITOR last = g_pCompositor->m_pLastMonitor.lock();
+    PHLMONITOR last = g_pCompositor->m_lastMonitor.lock();
     WORKSPACEID workspace = last->activeSpecialWorkspaceID();
     if (!workspace)
         workspace = last->activeWorkspaceID();
@@ -177,9 +177,9 @@ static Vector2D hookClosestValid(void *thisptr, const Vector2D& pos) {
 static PHLMONITOR hookGetMonitorFromVector(void *thisptr, const Vector2D& point) {
     CCompositor *compositor = static_cast<CCompositor *>(thisptr);
     // First, see if the current monitor contains the point
-    PHLMONITOR last = compositor->m_pLastMonitor.lock();
+    PHLMONITOR last = compositor->m_lastMonitor.lock();
     PHLMONITOR mon;
-    for (auto const& m : compositor->m_vMonitors) {
+    for (auto const& m : compositor->m_monitors) {
         WORKSPACEID workspace = m->activeSpecialWorkspaceID();
         if (!workspace)
             workspace = m->activeWorkspaceID();
@@ -205,7 +205,7 @@ static PHLMONITOR hookGetMonitorFromVector(void *thisptr, const Vector2D& point)
     float      bestDistance = 0.f;
     PHLMONITOR pBestMon;
 
-    for (auto const& m : compositor->m_vMonitors) {
+    for (auto const& m : compositor->m_monitors) {
         float dist = vecToRectDistanceSquared(point, m->vecPosition, m->vecPosition + m->vecSize);
 
         if (dist < bestDistance || !pBestMon) {
@@ -216,7 +216,7 @@ static PHLMONITOR hookGetMonitorFromVector(void *thisptr, const Vector2D& point)
 
     if (!pBestMon) { // ?????
         //Debug::log(WARN, "getMonitorFromVector no close mon???");
-        return compositor->m_vMonitors.front();
+        return compositor->m_monitors.front();
     }
 
     return pBestMon;

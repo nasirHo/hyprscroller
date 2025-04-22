@@ -51,7 +51,7 @@ public:
     void del(const std::string &name) {
         const auto mark = marks.find(name);
         if (mark != marks.end()) {
-            if (g_pCompositor->m_pLastWindow == mark->second)
+            if (g_pCompositor->m_lastWindow == mark->second)
                 post_mark_event(nullptr);
             marks.erase(mark);
         }
@@ -153,7 +153,7 @@ protected:
             g_ScrollerLayout->selection_set(win->data());
         }
         // Re-render windows to show decorations
-        for (auto monitor : g_pCompositor->m_vMonitors) {
+        for (auto monitor : g_pCompositor->m_monitors) {
             g_pHyprRenderer->damageMonitor(monitor);
         }
     }
@@ -380,9 +380,9 @@ void ScrollerLayout::onWindowRemovedTiling(PHLWINDOW window)
     if (window == g_pInputManager->currentlyDraggedWindow)
         return;
 
-    WORKSPACEID workspace_id = g_pCompositor->m_pLastMonitor->activeSpecialWorkspaceID();
+    WORKSPACEID workspace_id = g_pCompositor->m_lastMonitor->activeSpecialWorkspaceID();
     if (!workspace_id) {
-        workspace_id = g_pCompositor->m_pLastMonitor->activeWorkspaceID();
+        workspace_id = g_pCompositor->m_lastMonitor->activeWorkspaceID();
     }
     s = getRowForWorkspace(workspace_id);
     if (s != nullptr)
@@ -394,9 +394,9 @@ void ScrollerLayout::onWindowRemovedTiling(PHLWINDOW window)
 */
 void ScrollerLayout::onWindowRemovedFloating(PHLWINDOW)
 {
-    WORKSPACEID workspace_id = g_pCompositor->m_pLastMonitor->activeSpecialWorkspaceID();
+    WORKSPACEID workspace_id = g_pCompositor->m_lastMonitor->activeSpecialWorkspaceID();
     if (!workspace_id) {
-        workspace_id = g_pCompositor->m_pLastMonitor->activeWorkspaceID();
+        workspace_id = g_pCompositor->m_lastMonitor->activeWorkspaceID();
     }
     auto s = getRowForWorkspace(workspace_id);
     if (s != nullptr)
@@ -497,7 +497,7 @@ void ScrollerLayout::recalculateWindow(PHLWINDOW window)
 void ScrollerLayout::resizeActiveWindow(const Vector2D &delta,
                                         eRectCorner /* corner */, PHLWINDOW window)
 {
-    const auto PWINDOW = window ? window : g_pCompositor->m_pLastWindow.lock();
+    const auto PWINDOW = window ? window : g_pCompositor->m_lastWindow.lock();
     auto s = getRowForWindow(PWINDOW);
     if (s == nullptr) {
         // Window is not tiled
@@ -649,9 +649,9 @@ PHLWINDOW ScrollerLayout::getNextWindowCandidate(PHLWINDOW/* old_window */)
     // in Row, because WORKSPACE has also lost it. Storing it in Row is hard
     // to keep synchronized. So for now, unmapping a window from a workspace
     // different than the active one, loses full screen state.
-    WORKSPACEID workspace_id = g_pCompositor->m_pLastMonitor->activeSpecialWorkspaceID();
+    WORKSPACEID workspace_id = g_pCompositor->m_lastMonitor->activeSpecialWorkspaceID();
     if (!workspace_id) {
-        workspace_id = g_pCompositor->m_pLastMonitor->activeWorkspaceID();
+        workspace_id = g_pCompositor->m_lastMonitor->activeWorkspaceID();
     }
     auto s = getRowForWorkspace(workspace_id);
     if (s == nullptr)
@@ -723,13 +723,13 @@ void ScrollerLayout::onEnable() {
     overviews = new Overview;
     marks.reset();
     trails = new Trails();
-    for (auto& window : g_pCompositor->m_vWindows) {
+    for (auto& window : g_pCompositor->m_windows) {
         if (window->m_bIsFloating || !window->m_bIsMapped || window->isHidden())
             continue;
 
         onWindowCreatedTiling(window);
     }
-    for (auto &monitor : g_pCompositor->m_vMonitors) {
+    for (auto &monitor : g_pCompositor->m_monitors) {
         recalculateMonitor(monitor->ID);
     }
 }
@@ -788,13 +788,13 @@ void ScrollerLayout::onDisable() {
     Return 0,0 if unpredictable
 */
 Vector2D ScrollerLayout::predictSizeForNewWindowTiled() {
-    if (!g_pCompositor->m_pLastMonitor)
+    if (!g_pCompositor->m_lastMonitor)
         return {};
 
-    WORKSPACEID workspace_id = g_pCompositor->m_pLastMonitor->activeWorkspaceID();
+    WORKSPACEID workspace_id = g_pCompositor->m_lastMonitor->activeWorkspaceID();
     auto s = getRowForWorkspace(workspace_id);
     if (s == nullptr) {
-        Vector2D size =g_pCompositor->m_pLastMonitor->vecSize;
+        Vector2D size =g_pCompositor->m_lastMonitor->vecSize;
         size.x *= 0.5;
         return size;
     }
@@ -925,9 +925,9 @@ void ScrollerLayout::move_focus(WORKSPACEID workspace, Direction direction)
 
     if (s->move_focus(direction, **focus_wrap == 0 ? false : true)) {
         // Changed workspace
-        WORKSPACEID workspace_id = g_pCompositor->m_pLastMonitor->activeSpecialWorkspaceID();
+        WORKSPACEID workspace_id = g_pCompositor->m_lastMonitor->activeSpecialWorkspaceID();
         if (!workspace_id) {
-            workspace_id = g_pCompositor->m_pLastMonitor->activeWorkspaceID();
+            workspace_id = g_pCompositor->m_lastMonitor->activeWorkspaceID();
         }
         s = getRowForWorkspace(workspace_id);
         if (s != nullptr) {
@@ -1129,7 +1129,7 @@ void ScrollerLayout::selection_toggle(WORKSPACEID workspace) {
     s->selection_toggle();
 
     // Re-render that monitor to remove decorations
-    g_pHyprRenderer->damageMonitor(g_pCompositor->m_pLastMonitor.lock());
+    g_pHyprRenderer->damageMonitor(g_pCompositor->m_lastMonitor.lock());
 }
 
 void ScrollerLayout::selection_set(PHLWINDOWREF window) {
@@ -1143,7 +1143,7 @@ void ScrollerLayout::selection_reset() {
         row->data()->selection_reset();
     }
     // Re-render windows to remove decorations
-    for (auto monitor : g_pCompositor->m_vMonitors) {
+    for (auto monitor : g_pCompositor->m_monitors) {
         g_pHyprRenderer->damageMonitor(monitor);
     }
 }
@@ -1157,7 +1157,7 @@ void ScrollerLayout::selection_workspace(WORKSPACEID workspace) {
     s->selection_all();
 
     // Re-render that monitor to render decorations
-    g_pHyprRenderer->damageMonitor(g_pCompositor->m_pLastMonitor.lock());
+    g_pHyprRenderer->damageMonitor(g_pCompositor->m_lastMonitor.lock());
 }
 
 // Move all selected columns/windows to workspace, and locate them in direction wrt
@@ -1266,7 +1266,7 @@ void ScrollerLayout::jump() {
     jumping = true;
     jump_data = new JumpData;
 
-    for (auto monitor : g_pCompositor->m_vMonitors) {
+    for (auto monitor : g_pCompositor->m_monitors) {
         WORKSPACEID workspace_id = monitor->activeSpecialWorkspaceID();
         if (!workspace_id) {
             workspace_id = monitor->activeWorkspaceID();
@@ -1294,8 +1294,8 @@ void ScrollerLayout::jump() {
 
     static auto const *KEYS = (Hyprlang::STRING const *)HyprlandAPI::getConfigValue(PHANDLE, "plugin:scroller:jump_labels_keys")->getDataStaticPtr();
     jump_data->keys = *KEYS;
-    jump_data->from_window = g_pCompositor->m_pLastWindow;
-    jump_data->from_monitor = g_pCompositor->m_pLastMonitor;
+    jump_data->from_window = g_pCompositor->m_lastWindow;
+    jump_data->from_monitor = g_pCompositor->m_lastMonitor;
 
     if (jump_data->keys.size() == 1 && jump_data->windows.size() > 1) {
         delete jump_data;
