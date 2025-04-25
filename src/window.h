@@ -168,7 +168,7 @@ public:
 
     void move_to_workspace(PHLWORKSPACE workspace) {
         window->moveToWorkspace(workspace);
-        window->m_pMonitor = workspace->m_pMonitor;
+        window->m_pMonitor = workspace->m_monitor;
     }
 
     void pin(bool pin) {

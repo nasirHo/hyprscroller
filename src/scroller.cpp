@@ -448,8 +448,8 @@ void ScrollerLayout::recalculateMonitor(const MONITORID &monitor_id)
         const Box oldmax = sw->get_max();
         const bool force = sw->update_sizes(PMONITOR);
         auto PWORKSPACESPECIAL = PMONITOR->activeSpecialWorkspace;
-        if (PWORKSPACESPECIAL->m_bHasFullscreenWindow) {
-            sw->set_fullscreen_mode_windows(PWORKSPACESPECIAL->m_efFullscreenMode);
+        if (PWORKSPACESPECIAL->m_hasFullscreenWindow) {
+            sw->set_fullscreen_mode_windows(PWORKSPACESPECIAL->m_fullscreenMode);
         } else {
             sw->update_windows(oldmax, force);
         }
@@ -459,14 +459,14 @@ void ScrollerLayout::recalculateMonitor(const MONITORID &monitor_id)
     if (!PWORKSPACE)
         return;
 
-    auto s = getRowForWorkspace(PWORKSPACE->m_iID);
+    auto s = getRowForWorkspace(PWORKSPACE->m_id);
     if (s == nullptr)
         return;
 
     const Box oldmax = s->get_max();
     const bool force = s->update_sizes(PMONITOR);
-    if (PWORKSPACE->m_bHasFullscreenWindow) {
-        s->set_fullscreen_mode_windows(PWORKSPACE->m_efFullscreenMode);
+    if (PWORKSPACE->m_hasFullscreenWindow) {
+        s->set_fullscreen_mode_windows(PWORKSPACE->m_fullscreenMode);
     } else {
         s->update_windows(oldmax, force);
     }
@@ -685,8 +685,8 @@ void ScrollerLayout::onEnable() {
     // Register dynamic callbacks for events
     workspaceHookCallback = HyprlandAPI::registerCallbackDynamic(PHANDLE, "workspace", [&](void* /* self */, SCallbackInfo& /* info */, std::any param) {
         auto WORKSPACE = std::any_cast<PHLWORKSPACE>(param);
-        post_event(WORKSPACE->m_iID, "mode");
-        post_event(WORKSPACE->m_iID, "overview");
+        post_event(WORKSPACE->m_id, "mode");
+        post_event(WORKSPACE->m_id, "overview");
     });
     focusedMonHookCallback = HyprlandAPI::registerCallbackDynamic(PHANDLE, "focusedMon", [&](void* /* self */, SCallbackInfo& /* info */, std::any param) {
         auto monitor = std::any_cast<PHLMONITOR>(param);

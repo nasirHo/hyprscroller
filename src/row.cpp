@@ -1205,7 +1205,7 @@ void Row::toggle_overview()
             }
             adjust_overview_columns();
 
-            PHLMONITOR monitor = window->m_pWorkspace->m_pMonitor.lock();
+            PHLMONITOR monitor = window->m_pWorkspace->m_monitor.lock();
             g_pHyprRenderer->damageMonitor(monitor);
 
             overviews->set_scale(workspace, scale);
@@ -1227,7 +1227,7 @@ void Row::toggle_overview()
         }
     } else {
         if (**overview_scale_content && overviews->is_initialized()) {
-            PHLMONITOR monitor = get_active_window()->m_pWorkspace->m_pMonitor.lock();
+            PHLMONITOR monitor = get_active_window()->m_pWorkspace->m_monitor.lock();
             overviews->disable(workspace);
             g_pHyprRenderer->damageMonitor(monitor);
         }
@@ -1576,7 +1576,7 @@ void Row::scroll_update(Direction dir, const Vector2D &delta) {
         break;
     }
 
-    auto monitor = g_pCompositor->getWorkspaceByID(workspace)->m_pMonitor;
+    auto monitor = g_pCompositor->getWorkspaceByID(workspace)->m_monitor;
     g_pHyprRenderer->damageMonitor(monitor.lock());
 }
 

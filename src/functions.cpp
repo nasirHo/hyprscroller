@@ -76,7 +76,7 @@ void switch_to_window(PHLWINDOW from, PHLWINDOW to)
     bool change_workspace = fwid != twid;
     if (from != to) {
         const PHLWORKSPACE workspace = to->m_pWorkspace;
-        eFullscreenMode mode = workspace->m_efFullscreenMode;
+        eFullscreenMode mode = workspace->m_fullscreenMode;
         if (mode != eFullscreenMode::FSMODE_NONE) {
             if (change_workspace) {
                 auto fwindow = workspace->getLastFocusedWindow(); 

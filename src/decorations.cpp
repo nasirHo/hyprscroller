@@ -49,7 +49,7 @@ CBox SelectionBorders::assignedBoxGlobal() {
     if (!PWORKSPACE)
         return box;
 
-    const auto WORKSPACEOFFSET = PWORKSPACE && !m_pWindow->m_bPinned ? PWORKSPACE->m_vRenderOffset->value() : Vector2D();
+    const auto WORKSPACEOFFSET = PWORKSPACE && !m_pWindow->m_bPinned ? PWORKSPACE->m_renderOffset->value() : Vector2D();
     return box.translate(WORKSPACEOFFSET);
 }
 
@@ -124,8 +124,8 @@ void SelectionBorders::damageEntire() {
     const auto BORDERSIZE   = m_pWindow->getRealBorderSize() + 1;
 
     const auto PWINDOWWORKSPACE = m_pWindow->m_pWorkspace;
-    if (PWINDOWWORKSPACE && PWINDOWWORKSPACE->m_vRenderOffset->isBeingAnimated() && !m_pWindow->m_bPinned)
-        surfaceBox.translate(PWINDOWWORKSPACE->m_vRenderOffset->value());
+    if (PWINDOWWORKSPACE && PWINDOWWORKSPACE->m_renderOffset->isBeingAnimated() && !m_pWindow->m_bPinned)
+        surfaceBox.translate(PWINDOWWORKSPACE->m_renderOffset->value());
     surfaceBox.translate(m_pWindow->m_vFloatingOffset);
 
     CBox surfaceBoxExpandedBorder = surfaceBox;
@@ -205,7 +205,7 @@ CBox JumpDecoration::assignedBoxGlobal() {
     if (!PWORKSPACE)
         return box;
 
-    const auto WORKSPACEOFFSET = PWORKSPACE->m_vRenderOffset->value();
+    const auto WORKSPACEOFFSET = PWORKSPACE->m_renderOffset->value();
     return box.translate(WORKSPACEOFFSET);
 }
 
