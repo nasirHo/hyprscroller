@@ -779,8 +779,11 @@ void ScrollerLayout::onDisable() {
     }
     rows.clear();
     marks.reset();
-    delete trails;
-    trails = nullptr;
+
+    if (trails != nullptr) {
+        delete trails;
+        trails = nullptr;
+    }
 }
 
 /*
