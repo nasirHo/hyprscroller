@@ -109,7 +109,7 @@ void Column::add_active_window(PHLWINDOW window)
     if (focus == ModeModifier::FOCUS_FOCUS)
         active = node;
     else
-        window->m_bNoInitialFocus = true;
+        window->m_noInitialFocus = true;
 }
 
 void Column::remove_window(PHLWINDOW window)

@@ -317,12 +317,12 @@ void ScrollerLayout::onWindowCreatedTiling(PHLWINDOW window, eDirection)
     s->add_active_window(window);
 
     // Check window rules
-    for (auto &r: window->m_vMatchedRules) {
-        if (r->szRule.starts_with("plugin:scroller:group")) {
-            const auto name = r->szRule.substr(r->szRule.find_first_of(' ') + 1);
+    for (auto &r: window->m_matchedRules) {
+        if (r->m_rule.starts_with("plugin:scroller:group")) {
+            const auto name = r->m_rule.substr(r->m_rule.find_first_of(' ') + 1);
             s->move_active_window_to_group(name);
-        } else if (r->szRule.starts_with("plugin:scroller:alignwindow")) {
-            const auto dir = r->szRule.substr(r->szRule.find_first_of(' ') + 1);
+        } else if (r->m_rule.starts_with("plugin:scroller:alignwindow")) {
+            const auto dir = r->m_rule.substr(r->m_rule.find_first_of(' ') + 1);
             if (dir == "l" || dir == "left") {
                 s->align_column(Direction::Left);
             } else if (dir == "r" || dir == "right") {
@@ -336,8 +336,8 @@ void ScrollerLayout::onWindowCreatedTiling(PHLWINDOW window, eDirection)
             } else if (dir == "m" || dir == "middle") {
                 s->align_column(Direction::Middle);
             }
-        } else if (r->szRule.starts_with("plugin:scroller:marksadd")) {
-            const auto mark_name = r->szRule.substr(r->szRule.find_first_of(' ') + 1);
+        } else if (r->m_rule.starts_with("plugin:scroller:marksadd")) {
+            const auto mark_name = r->m_rule.substr(r->m_rule.find_first_of(' ') + 1);
             marks.add(window, mark_name);
         }
     }
@@ -373,7 +373,7 @@ void ScrollerLayout::onWindowRemovedTiling(PHLWINDOW window)
             }
         }
     }
-    if (window->m_bIsFloating)
+    if (window->m_isFloating)
         return;
 
     // Don't modify focus if window is being dragged
@@ -501,7 +501,7 @@ void ScrollerLayout::resizeActiveWindow(const Vector2D &delta,
     auto s = getRowForWindow(PWINDOW);
     if (s == nullptr) {
         // Window is not tiled
-        *PWINDOW->m_vRealSize = Vector2D(std::max((PWINDOW->m_vRealSize->goal() + delta).x, 20.0), std::max((PWINDOW->m_vRealSize->goal() + delta).y, 20.0));
+        *PWINDOW->m_realSize = Vector2D(std::max((PWINDOW->m_realSize->goal() + delta).x, 20.0), std::max((PWINDOW->m_realSize->goal() + delta).y, 20.0));
         PWINDOW->sendWindowSize();
         PWINDOW->updateWindowDecos();
         return;
@@ -523,18 +523,18 @@ void ScrollerLayout::fullscreenRequestForWindow(PHLWINDOW window,
 
     if (s == nullptr) {
         // save position and size if floating
-        if (window->m_bIsFloating && CURRENT_EFFECTIVE_MODE == FSMODE_NONE) {
-            window->m_vLastFloatingSize     = window->m_vRealSize->goal();
-            window->m_vLastFloatingPosition = window->m_vRealPosition->goal();
-            window->m_vPosition             = window->m_vRealPosition->goal();
-            window->m_vSize                 = window->m_vRealSize->goal();
+        if (window->m_isFloating && CURRENT_EFFECTIVE_MODE == FSMODE_NONE) {
+            window->m_lastFloatingSize     = window->m_realSize->goal();
+            window->m_lastFloatingPosition = window->m_realPosition->goal();
+            window->m_position             = window->m_realPosition->goal();
+            window->m_size                 = window->m_realSize->goal();
         }
         if (EFFECTIVE_MODE == FSMODE_NONE) {
             // window is not tiled
-            if (window->m_bIsFloating) {
+            if (window->m_isFloating) {
                 // get back its' dimensions from position and size
-                *window->m_vRealPosition = window->m_vLastFloatingPosition;
-                *window->m_vRealSize     = window->m_vLastFloatingSize;
+                *window->m_realPosition = window->m_lastFloatingPosition;
+                *window->m_realSize     = window->m_lastFloatingSize;
 
                 window->unsetWindowData(PRIORITY_LAYOUT);
                 window->updateWindowData();
@@ -542,15 +542,15 @@ void ScrollerLayout::fullscreenRequestForWindow(PHLWINDOW window,
             }
         } else {
             // apply new pos and size being monitors' box
-            const auto PMONITOR   = window->m_pMonitor.lock();
+            const auto PMONITOR   = window->m_monitor.lock();
             if (EFFECTIVE_MODE == FSMODE_FULLSCREEN) {
-                *window->m_vRealPosition = PMONITOR->vecPosition;
-                *window->m_vRealSize     = PMONITOR->vecSize;
+                *window->m_realPosition = PMONITOR->vecPosition;
+                *window->m_realSize     = PMONITOR->vecSize;
             } else {
                 Box box = { PMONITOR->vecPosition + PMONITOR->vecReservedTopLeft,
                             PMONITOR->vecSize - PMONITOR->vecReservedTopLeft - PMONITOR->vecReservedBottomRight};
-                *window->m_vRealPosition = Vector2D(box.x, box.y);
-                *window->m_vRealSize = Vector2D(box.w, box.h);
+                *window->m_realPosition = Vector2D(box.x, box.y);
+                *window->m_realSize = Vector2D(box.w, box.h);
                 window->sendWindowSize();
             }
         }
@@ -724,7 +724,7 @@ void ScrollerLayout::onEnable() {
     marks.reset();
     trails = new Trails();
     for (auto& window : g_pCompositor->m_windows) {
-        if (window->m_bIsFloating || !window->m_bIsMapped || window->isHidden())
+        if (window->m_isFloating || !window->m_isMapped || window->isHidden())
             continue;
 
         onWindowCreatedTiling(window);

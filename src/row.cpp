@@ -107,9 +107,9 @@ void Row::add_active_window(PHLWINDOW window)
 
     // Evaluate window rules
     auto store_modifier = modifier;
-    for (auto &r: window->m_vMatchedRules) {
-        if (r->szRule.starts_with("plugin:scroller:modemodifier")) {
-            const auto modemodifier = r->szRule.substr(r->szRule.find_first_of(' ') + 1);
+    for (auto &r: window->m_matchedRules) {
+        if (r->m_rule.starts_with("plugin:scroller:modemodifier")) {
+            const auto modemodifier = r->m_rule.substr(r->m_rule.find_first_of(' ') + 1);
             // params: row|column after|before|end|beginning focus|nofocus
             std::istringstream iss(modemodifier);
             std::string arg;
@@ -165,7 +165,7 @@ void Row::add_active_window(PHLWINDOW window)
             active = node;
         else {
             active = store_active;
-            window->m_bNoInitialFocus = true;
+            window->m_noInitialFocus = true;
         }
 
         reorder = Reorder::Auto;
@@ -1205,7 +1205,7 @@ void Row::toggle_overview()
             }
             adjust_overview_columns();
 
-            PHLMONITOR monitor = window->m_pWorkspace->m_monitor.lock();
+            PHLMONITOR monitor = window->m_workspace->m_monitor.lock();
             g_pHyprRenderer->damageMonitor(monitor);
 
             overviews->set_scale(workspace, scale);
@@ -1227,7 +1227,7 @@ void Row::toggle_overview()
         }
     } else {
         if (**overview_scale_content && overviews->is_initialized()) {
-            PHLMONITOR monitor = get_active_window()->m_pWorkspace->m_monitor.lock();
+            PHLMONITOR monitor = get_active_window()->m_workspace->m_monitor.lock();
             overviews->disable(workspace);
             g_pHyprRenderer->damageMonitor(monitor);
         }

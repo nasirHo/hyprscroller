@@ -99,13 +99,13 @@ Mode ScrollerSizes::get_mode(PHLMONITOR monitor)
 StandardSize ScrollerSizes::get_window_default_height(PHLWINDOW window)
 {
     // Check window rules
-    for (auto &r: window->m_vMatchedRules) {
-        if (r->szRule.starts_with("plugin:scroller:windowheight")) {
-            const auto window_height = r->szRule.substr(r->szRule.find_first_of(' ') + 1);
+    for (auto &r: window->m_matchedRules) {
+        if (r->m_rule.starts_with("plugin:scroller:windowheight")) {
+            const auto window_height = r->m_rule.substr(r->m_rule.find_first_of(' ') + 1);
             return get_size_from_string(window_height, StandardSize::One);
         }
     }
-    const auto monitor = window->m_pMonitor.lock();
+    const auto monitor = window->m_monitor.lock();
     update();
     for (const auto monitor_data : monitors) {
         if (monitor_data.name == monitor->szName)
@@ -117,13 +117,13 @@ StandardSize ScrollerSizes::get_window_default_height(PHLWINDOW window)
 StandardSize ScrollerSizes::get_column_default_width(PHLWINDOW window)
 {
     // Check window rules
-    for (auto &r: window->m_vMatchedRules) {
-        if (r->szRule.starts_with("plugin:scroller:columnwidth")) {
-            const auto column_width = r->szRule.substr(r->szRule.find_first_of(' ') + 1);
+    for (auto &r: window->m_matchedRules) {
+        if (r->m_rule.starts_with("plugin:scroller:columnwidth")) {
+            const auto column_width = r->m_rule.substr(r->m_rule.find_first_of(' ') + 1);
             return get_size_from_string(column_width, StandardSize::OneHalf);
         }
     }
-    const auto monitor = window->m_pMonitor.lock();
+    const auto monitor = window->m_monitor.lock();
     update();
     for (const auto monitor_data : monitors) {
         if (monitor_data.name == monitor->szName)
