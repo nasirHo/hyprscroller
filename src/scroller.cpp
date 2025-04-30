@@ -447,7 +447,7 @@ void ScrollerLayout::recalculateMonitor(const MONITORID &monitor_id)
         }
         const Box oldmax = sw->get_max();
         const bool force = sw->update_sizes(PMONITOR);
-        auto PWORKSPACESPECIAL = PMONITOR->activeSpecialWorkspace;
+        auto PWORKSPACESPECIAL = PMONITOR->m_activeSpecialWorkspace;
         if (PWORKSPACESPECIAL->m_hasFullscreenWindow) {
             sw->set_fullscreen_mode_windows(PWORKSPACESPECIAL->m_fullscreenMode);
         } else {
@@ -455,7 +455,7 @@ void ScrollerLayout::recalculateMonitor(const MONITORID &monitor_id)
         }
     }
 
-    auto PWORKSPACE = PMONITOR->activeWorkspace;
+    auto PWORKSPACE = PMONITOR->m_activeWorkspace;
     if (!PWORKSPACE)
         return;
 
@@ -544,11 +544,11 @@ void ScrollerLayout::fullscreenRequestForWindow(PHLWINDOW window,
             // apply new pos and size being monitors' box
             const auto PMONITOR   = window->m_monitor.lock();
             if (EFFECTIVE_MODE == FSMODE_FULLSCREEN) {
-                *window->m_realPosition = PMONITOR->vecPosition;
-                *window->m_realSize     = PMONITOR->vecSize;
+                *window->m_realPosition = PMONITOR->m_position;
+                *window->m_realSize     = PMONITOR->m_size;
             } else {
-                Box box = { PMONITOR->vecPosition + PMONITOR->vecReservedTopLeft,
-                            PMONITOR->vecSize - PMONITOR->vecReservedTopLeft - PMONITOR->vecReservedBottomRight};
+                Box box = { PMONITOR->m_position + PMONITOR->m_reservedTopLeft,
+                            PMONITOR->m_size - PMONITOR->m_reservedTopLeft - PMONITOR->m_reservedBottomRight};
                 *window->m_realPosition = Vector2D(box.x, box.y);
                 *window->m_realSize = Vector2D(box.w, box.h);
                 window->sendWindowSize();
@@ -730,7 +730,7 @@ void ScrollerLayout::onEnable() {
         onWindowCreatedTiling(window);
     }
     for (auto &monitor : g_pCompositor->m_monitors) {
-        recalculateMonitor(monitor->ID);
+        recalculateMonitor(monitor->m_id);
     }
 }
 
@@ -797,7 +797,7 @@ Vector2D ScrollerLayout::predictSizeForNewWindowTiled() {
     WORKSPACEID workspace_id = g_pCompositor->m_lastMonitor->activeWorkspaceID();
     auto s = getRowForWorkspace(workspace_id);
     if (s == nullptr) {
-        Vector2D size =g_pCompositor->m_lastMonitor->vecSize;
+        Vector2D size =g_pCompositor->m_lastMonitor->m_size;
         size.x *= 0.5;
         return size;
     }
@@ -1526,8 +1526,8 @@ void ScrollerLayout::mouse_move(SCallbackInfo& info, const Vector2D &mousePos) {
     WORKSPACEID workspace_id = PMONITOR->activeWorkspaceID();
     auto s = getRowForWorkspace(workspace_id);
     if (s != nullptr) {
-        Box box = { PMONITOR->vecPosition + PMONITOR->vecReservedTopLeft,
-                    PMONITOR->vecSize - PMONITOR->vecReservedTopLeft - PMONITOR->vecReservedBottomRight};
+        Box box = { PMONITOR->m_position + PMONITOR->m_reservedTopLeft,
+                    PMONITOR->m_size - PMONITOR->m_reservedTopLeft - PMONITOR->m_reservedBottomRight};
 
         if (!s->get_max().contains_point(mousePos) && box.contains_point(mousePos)) {
             // We are in gaps_out territory

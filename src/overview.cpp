@@ -67,10 +67,10 @@ static void hookRenderLayer(void *thisptr, PHLLS layer, PHLMONITOR monitor, time
     if (!workspace)
         workspace = monitor->activeWorkspaceID();
     bool overview_enabled = overviews->overview_enabled(workspace);
-    float scale = monitor->scale;
+    float scale = monitor->m_scale;
     if (overview_enabled) {
         const float scaling = 1.0 / overviews->get_scale(workspace);
-        monitor->scale *= scaling;
+        monitor->m_scale *= scaling;
         SRenderModifData modif_data;;
         modif_data.modifs.push_back({SRenderModifData::eRenderModifType::RMOD_TYPE_SCALE, scaling});
         modif_data.enabled = true;
@@ -80,7 +80,7 @@ static void hookRenderLayer(void *thisptr, PHLLS layer, PHLMONITOR monitor, time
     ((origRenderLayer)(g_pRenderLayerHook->m_pOriginal))(thisptr, layer, monitor, time, popups);
     if (overview_enabled) {
         g_pHyprRenderer->m_sRenderPass.add(makeShared<OverviewPassElement>(OverviewPassElement::OverviewModifData(SRenderModifData())));
-        monitor->scale = scale;
+        monitor->m_scale = scale;
         g_pHyprRenderer->damageMonitor(monitor);
     }
 }
@@ -95,13 +95,13 @@ static CBox hookLogicalBox(void *thisptr) {
     if (!workspace)
         workspace = monitor->activeWorkspaceID();
     bool overview_enabled = overviews->overview_enabled(workspace);
-    Vector2D monitor_size = monitor->vecSize;
+    Vector2D monitor_size = monitor->m_size;
     if (overview_enabled) {
-        monitor->vecSize = overviews->get_vecsize(workspace) / overviews->get_scale(workspace);
+        monitor->m_size = overviews->get_vecsize(workspace) / overviews->get_scale(workspace);
     }
     CBox box = ((origLogicalBox)(g_pLogicalBoxHook->m_pOriginal))(thisptr);
     if (overview_enabled) {
-        monitor->vecSize = monitor_size;
+        monitor->m_size = monitor_size;
     }
     return box;
 }
@@ -115,13 +115,13 @@ static Vector2D hookGetCursorPosForMonitor(void *thisptr, PHLMONITOR monitor) {
     if (!workspace)
         workspace = monitor->activeWorkspaceID();
     bool overview_enabled = overviews->overview_enabled(workspace);
-    double monitor_scale = monitor->scale;
+    double monitor_scale = monitor->m_scale;
     if (overview_enabled) {
-        monitor->scale *= overviews->get_scale(workspace);
+        monitor->m_scale *= overviews->get_scale(workspace);
     }
     Vector2D pos = ((origGetCursorPosForMonitor)(g_pGetCursorPosForMonitorHook->m_pOriginal))(thisptr, monitor);
     if (overview_enabled) {
-        monitor->scale = monitor_scale;
+        monitor->m_scale = monitor_scale;
     }
     return pos;
 }
@@ -149,10 +149,10 @@ static void hookRenderSoftwareCursorsFor(void *thisptr, PHLMONITOR monitor, time
         if (!workspace)
             workspace = monitor->activeWorkspaceID();
         if (overviews->overview_enabled(workspace)) {
-            Vector2D monitor_size = monitor->vecSize;
-            monitor->vecSize = overviews->get_vecsize(workspace) / overviews->get_scale(workspace);
+            Vector2D monitor_size = monitor->m_size;
+            monitor->m_size = overviews->get_vecsize(workspace) / overviews->get_scale(workspace);
             ((origRenderSoftwareCursorsFor)(g_pRenderSoftwareCursorsForHook->m_pOriginal))(thisptr, monitor, now, damage, overridePos);
-            monitor->vecSize = monitor_size;
+            monitor->m_size = monitor_size;
         }
     } else if (overview_enabled) {
         return;
@@ -184,9 +184,9 @@ static PHLMONITOR hookGetMonitorFromVector(void *thisptr, const Vector2D& point)
         if (!workspace)
             workspace = m->activeWorkspaceID();
         bool overview_enabled = overviews->overview_enabled(workspace);
-        Vector2D vecSize = overview_enabled? overviews->get_vecsize(workspace) / overviews->get_scale(workspace) : m->vecSize;
+        Vector2D vecSize = overview_enabled? overviews->get_vecsize(workspace) / overviews->get_scale(workspace) : m->m_size;
         // If the monitor contains the point
-        if (CBox{m->vecPosition, vecSize}.containsPoint(point)) {
+        if (CBox{m->m_position, vecSize}.containsPoint(point)) {
             // Priority for last monitor
             if (m == last) {
                 return last;
@@ -206,7 +206,7 @@ static PHLMONITOR hookGetMonitorFromVector(void *thisptr, const Vector2D& point)
     PHLMONITOR pBestMon;
 
     for (auto const& m : compositor->m_monitors) {
-        float dist = vecToRectDistanceSquared(point, m->vecPosition, m->vecPosition + m->vecSize);
+        float dist = vecToRectDistanceSquared(point, m->m_position, m->m_position + m->m_size);
 
         if (dist < bestDistance || !pBestMon) {
             bestDistance = dist;
@@ -228,13 +228,13 @@ static void hookRenderMonitor(void *thisptr, PHLMONITOR monitor) {
     if (!workspace)
         workspace = monitor->activeWorkspaceID();
     bool overview_enabled = overviews->overview_enabled(workspace);
-    float scale = monitor->scale;
+    float scale = monitor->m_scale;
     if (overview_enabled) {
-        monitor->scale *= overviews->get_scale(workspace);
+        monitor->m_scale *= overviews->get_scale(workspace);
     }
     ((origRenderMonitor)(g_pRenderMonitorHook->m_pOriginal))(thisptr, monitor);
     if (overview_enabled) {
-        monitor->scale = scale;
+        monitor->m_scale = scale;
     }
 }
 

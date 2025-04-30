@@ -1003,10 +1003,10 @@ bool Row::update_sizes(PHLMONITOR monitor)
     // For now, support only constant CCssGapData
     auto gaps_in = WORKSPACERULE.gapsIn.value_or(*PGAPSIN).m_top;
     auto gaps_out = WORKSPACERULE.gapsOut.value_or(*PGAPSOUT);
-    const auto SIZE = monitor->vecSize;
-    const auto POS = monitor->vecPosition;
-    const auto TOPLEFT = monitor->vecReservedTopLeft;
-    const auto BOTTOMRIGHT = monitor->vecReservedBottomRight;
+    const auto SIZE = monitor->m_size;
+    const auto POS = monitor->m_position;
+    const auto TOPLEFT = monitor->m_reservedTopLeft;
+    const auto BOTTOMRIGHT = monitor->m_reservedBottomRight;
 
     full = Box(POS, SIZE);
     const Box newmax = Box(POS.x + TOPLEFT.x + gaps_out.m_left,
@@ -1209,7 +1209,7 @@ void Row::toggle_overview()
             g_pHyprRenderer->damageMonitor(monitor);
 
             overviews->set_scale(workspace, scale);
-            overviews->set_vecsize(workspace, monitor->vecSize);
+            overviews->set_vecsize(workspace, monitor->m_size);
             // Update cursor
             get_active_window()->warpCursor();
         } else {

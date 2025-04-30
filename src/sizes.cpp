@@ -38,7 +38,7 @@ StandardSize ScrollerSizes::get_next(const std::vector<StandardSize> &sizes, Sta
 StandardSize ScrollerSizes::get_next_window_height(StandardSize size, int step)
 {
     update();
-    const std::string &monitor = g_pCompositor->m_lastMonitor->szName;
+    const std::string &monitor = g_pCompositor->m_lastMonitor->m_name;
     for (const auto monitor_data : monitors) {
         if (monitor_data.name == monitor)
             return get_next(monitor_data.window_heights, size, step);
@@ -49,7 +49,7 @@ StandardSize ScrollerSizes::get_next_window_height(StandardSize size, int step)
 StandardSize ScrollerSizes::get_next_column_width(StandardSize size, int step)
 {
     update();
-    const std::string &monitor = g_pCompositor->m_lastMonitor->szName;
+    const std::string &monitor = g_pCompositor->m_lastMonitor->m_name;
     for (const auto monitor_data : monitors) {
         if (monitor_data.name == monitor)
             return get_next(monitor_data.column_widths, size, step);
@@ -66,7 +66,7 @@ StandardSize ScrollerSizes::get_size(const std::vector<StandardSize> &sizes, int
 StandardSize ScrollerSizes::get_window_height(int index)
 {
     update();
-    const std::string &monitor = g_pCompositor->m_lastMonitor->szName;
+    const std::string &monitor = g_pCompositor->m_lastMonitor->m_name;
     for (const auto monitor_data : monitors) {
         if (monitor_data.name == monitor)
             return get_size(monitor_data.window_heights, index);
@@ -77,7 +77,7 @@ StandardSize ScrollerSizes::get_window_height(int index)
 StandardSize ScrollerSizes::get_column_width(int index)
 {
     update();
-    const std::string &monitor = g_pCompositor->m_lastMonitor->szName;
+    const std::string &monitor = g_pCompositor->m_lastMonitor->m_name;
     for (const auto monitor_data : monitors) {
         if (monitor_data.name == monitor)
             return get_size(monitor_data.column_widths, index);
@@ -90,7 +90,7 @@ Mode ScrollerSizes::get_mode(PHLMONITOR monitor)
 {
     update();
     for (const auto monitor_data : monitors) {
-        if (monitor_data.name == monitor->szName)
+        if (monitor_data.name == monitor->m_name)
             return monitor_data.mode;
     }
     return Mode::Row;
@@ -108,7 +108,7 @@ StandardSize ScrollerSizes::get_window_default_height(PHLWINDOW window)
     const auto monitor = window->m_monitor.lock();
     update();
     for (const auto monitor_data : monitors) {
-        if (monitor_data.name == monitor->szName)
+        if (monitor_data.name == monitor->m_name)
             return monitor_data.window_default_height;
     }
     return window_default_height;
@@ -126,7 +126,7 @@ StandardSize ScrollerSizes::get_column_default_width(PHLWINDOW window)
     const auto monitor = window->m_monitor.lock();
     update();
     for (const auto monitor_data : monitors) {
-        if (monitor_data.name == monitor->szName)
+        if (monitor_data.name == monitor->m_name)
             return monitor_data.column_default_width;
     }
     return column_default_width;
@@ -193,7 +193,7 @@ StandardSize ScrollerSizes::get_window_closest_height(PHLMONITORREF monitor, dou
 {
     update();
     for (const auto monitor_data : monitors) {
-        if (monitor_data.name == monitor->szName) {
+        if (monitor_data.name == monitor->m_name) {
             return get_closest_size(monitor_data.window_heights, fraction, step);
         }
     }
@@ -204,7 +204,7 @@ StandardSize ScrollerSizes::get_column_closest_width(PHLMONITORREF monitor, doub
 {
     update();
     for (const auto monitor_data : monitors) {
-        if (monitor_data.name == monitor->szName) {
+        if (monitor_data.name == monitor->m_name) {
             return get_closest_size(monitor_data.column_widths, fraction, step);
         }
     }
