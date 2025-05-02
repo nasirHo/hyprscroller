@@ -61,9 +61,9 @@ void force_focus_to_window(PHLWINDOW window)
     g_pCompositor->focusWindow(window);
     window->warpCursor();
 
-    g_pInputManager->m_pForcedFocus = window;
+    g_pInputManager->m_forcedFocus = window;
     g_pInputManager->simulateMouseMovement();
-    g_pInputManager->m_pForcedFocus.reset();
+    g_pInputManager->m_forcedFocus.reset();
 }
 
 void switch_to_window(PHLWINDOW from, PHLWINDOW to)

@@ -377,7 +377,7 @@ void ScrollerLayout::onWindowRemovedTiling(PHLWINDOW window)
         return;
 
     // Don't modify focus if window is being dragged
-    if (window == g_pInputManager->currentlyDraggedWindow)
+    if (window == g_pInputManager->m_currentlyDraggedWindow)
         return;
 
     WORKSPACEID workspace_id = g_pCompositor->m_lastMonitor->activeSpecialWorkspaceID();
