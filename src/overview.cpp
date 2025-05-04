@@ -58,7 +58,7 @@ static bool hookVisibleOnMonitor(void *thisptr, PHLMONITOR monitor) {
     if (overviews->overview_enabled(window->workspaceID())) {
         return true;
     }
-    return ((origVisibleOnMonitor)(g_pVisibleOnMonitorHook->m_pOriginal))(thisptr, monitor);
+    return ((origVisibleOnMonitor)(g_pVisibleOnMonitorHook->m_original))(thisptr, monitor);
 }
 
 // Needed to undo the monitor scale to render layers at the original scale
@@ -77,7 +77,7 @@ static void hookRenderLayer(void *thisptr, PHLLS layer, PHLMONITOR monitor, time
         g_pHyprRenderer->m_sRenderPass.add(makeShared<OverviewPassElement>(OverviewPassElement::OverviewModifData(modif_data)));
         g_pHyprRenderer->damageMonitor(monitor);
     }
-    ((origRenderLayer)(g_pRenderLayerHook->m_pOriginal))(thisptr, layer, monitor, time, popups);
+    ((origRenderLayer)(g_pRenderLayerHook->m_original))(thisptr, layer, monitor, time, popups);
     if (overview_enabled) {
         g_pHyprRenderer->m_sRenderPass.add(makeShared<OverviewPassElement>(OverviewPassElement::OverviewModifData(SRenderModifData())));
         monitor->m_scale = scale;
@@ -99,7 +99,7 @@ static CBox hookLogicalBox(void *thisptr) {
     if (overview_enabled) {
         monitor->m_size = overviews->get_vecsize(workspace) / overviews->get_scale(workspace);
     }
-    CBox box = ((origLogicalBox)(g_pLogicalBoxHook->m_pOriginal))(thisptr);
+    CBox box = ((origLogicalBox)(g_pLogicalBoxHook->m_original))(thisptr);
     if (overview_enabled) {
         monitor->m_size = monitor_size;
     }
@@ -119,7 +119,7 @@ static Vector2D hookGetCursorPosForMonitor(void *thisptr, PHLMONITOR monitor) {
     if (overview_enabled) {
         monitor->m_scale *= overviews->get_scale(workspace);
     }
-    Vector2D pos = ((origGetCursorPosForMonitor)(g_pGetCursorPosForMonitorHook->m_pOriginal))(thisptr, monitor);
+    Vector2D pos = ((origGetCursorPosForMonitor)(g_pGetCursorPosForMonitorHook->m_original))(thisptr, monitor);
     if (overview_enabled) {
         monitor->m_scale = monitor_scale;
     }
@@ -151,13 +151,13 @@ static void hookRenderSoftwareCursorsFor(void *thisptr, PHLMONITOR monitor, time
         if (overviews->overview_enabled(workspace)) {
             Vector2D monitor_size = monitor->m_size;
             monitor->m_size = overviews->get_vecsize(workspace) / overviews->get_scale(workspace);
-            ((origRenderSoftwareCursorsFor)(g_pRenderSoftwareCursorsForHook->m_pOriginal))(thisptr, monitor, now, damage, overridePos);
+            ((origRenderSoftwareCursorsFor)(g_pRenderSoftwareCursorsForHook->m_original))(thisptr, monitor, now, damage, overridePos);
             monitor->m_size = monitor_size;
         }
     } else if (overview_enabled) {
         return;
     }
-    ((origRenderSoftwareCursorsFor)(g_pRenderSoftwareCursorsForHook->m_pOriginal))(thisptr, monitor, now, damage, overridePos);
+    ((origRenderSoftwareCursorsFor)(g_pRenderSoftwareCursorsForHook->m_original))(thisptr, monitor, now, damage, overridePos);
 }
 
 // Needed to fake an overview monitor's desktop contains all its windows
@@ -170,7 +170,7 @@ static Vector2D hookClosestValid(void *thisptr, const Vector2D& pos) {
     bool overview_enabled = overviews->overview_enabled(workspace);
     if (overview_enabled)
        return pos;
-    return ((origClosestValid)(g_pClosestValidHook->m_pOriginal))(thisptr, pos);
+    return ((origClosestValid)(g_pClosestValidHook->m_original))(thisptr, pos);
 }
 
 // Needed to select the correct monitor for a cursor when two can contain it.
@@ -232,7 +232,7 @@ static void hookRenderMonitor(void *thisptr, PHLMONITOR monitor) {
     if (overview_enabled) {
         monitor->m_scale *= overviews->get_scale(workspace);
     }
-    ((origRenderMonitor)(g_pRenderMonitorHook->m_pOriginal))(thisptr, monitor);
+    ((origRenderMonitor)(g_pRenderMonitorHook->m_original))(thisptr, monitor);
     if (overview_enabled) {
         monitor->m_scale = scale;
     }
