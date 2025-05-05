@@ -38,7 +38,7 @@ public:
 
     virtual void draw(const CRegion& damage) {
         if (data.renderModif.has_value())
-            g_pHyprOpenGL->m_RenderData.renderModif = *data.renderModif;
+            g_pHyprOpenGL->m_renderData.renderModif = *data.renderModif;
     }
     virtual bool needsLiveBlur() { return false; };
     virtual bool needsPrecomputeBlur() { return false; };
@@ -74,12 +74,12 @@ static void hookRenderLayer(void *thisptr, PHLLS layer, PHLMONITOR monitor, time
         SRenderModifData modif_data;;
         modif_data.modifs.push_back({SRenderModifData::eRenderModifType::RMOD_TYPE_SCALE, scaling});
         modif_data.enabled = true;
-        g_pHyprRenderer->m_sRenderPass.add(makeShared<OverviewPassElement>(OverviewPassElement::OverviewModifData(modif_data)));
+        g_pHyprRenderer->m_renderPass.add(makeShared<OverviewPassElement>(OverviewPassElement::OverviewModifData(modif_data)));
         g_pHyprRenderer->damageMonitor(monitor);
     }
     ((origRenderLayer)(g_pRenderLayerHook->m_original))(thisptr, layer, monitor, time, popups);
     if (overview_enabled) {
-        g_pHyprRenderer->m_sRenderPass.add(makeShared<OverviewPassElement>(OverviewPassElement::OverviewModifData(SRenderModifData())));
+        g_pHyprRenderer->m_renderPass.add(makeShared<OverviewPassElement>(OverviewPassElement::OverviewModifData(SRenderModifData())));
         monitor->m_scale = scale;
         g_pHyprRenderer->damageMonitor(monitor);
     }
