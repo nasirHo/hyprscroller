@@ -1,5 +1,6 @@
 #include <hyprland/src/config/ConfigManager.hpp>
 #include <hyprland/src/plugins/PluginAPI.hpp>
+#include <hyprland/src/render/Renderer.hpp>
 #include <hyprlang.hpp>
 
 #include "dispatchers.h"
@@ -90,4 +91,6 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
     return {"hyprscroller", "scrolling window layout", "dawser", "1.0"};
 }
 
-APICALL EXPORT void PLUGIN_EXIT() {}
+APICALL EXPORT void PLUGIN_EXIT() {
+    g_pHyprRenderer->m_renderPass.removeAllOfType("OverviewPassElement");
+}

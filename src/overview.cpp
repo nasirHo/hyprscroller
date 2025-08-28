@@ -273,7 +273,7 @@ Overview::Overview() : initialized(false)
     }
 
     auto FNS6 = HyprlandAPI::findFunctionsByName(PHANDLE, "renderSoftwareCursorsFor");
-    if (!FNS5.empty()) {
+    if (!FNS6.empty()) {
         g_pRenderSoftwareCursorsForHook = HyprlandAPI::createFunctionHook(PHANDLE, FNS6[0].address, (bool *)hookRenderSoftwareCursorsFor);
         if (g_pRenderSoftwareCursorsForHook == nullptr) {
             return;
@@ -284,7 +284,7 @@ Overview::Overview() : initialized(false)
 
     auto FNS7 =
         HyprlandAPI::findFunctionsByName(PHANDLE, "getMonitorFromVector");
-    if (!FNS5.empty()) {
+    if (!FNS7.empty()) {
         g_pGetMonitorFromVectorHook = HyprlandAPI::createFunctionHook(PHANDLE, FNS7[0].address, (bool *)hookGetMonitorFromVector);
         if (g_pGetMonitorFromVectorHook == nullptr) {
             return;
@@ -294,7 +294,7 @@ Overview::Overview() : initialized(false)
     }
 
     auto FNS8 = HyprlandAPI::findFunctionsByName(PHANDLE, "closestValid");
-    if (!FNS5.empty()) {
+    if (!FNS8.empty()) {
         g_pClosestValidHook = HyprlandAPI::createFunctionHook(PHANDLE, FNS8[0].address, (bool *)hookClosestValid);
         if (g_pClosestValidHook == nullptr) {
             return;

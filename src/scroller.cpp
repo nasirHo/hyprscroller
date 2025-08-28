@@ -39,21 +39,19 @@ public:
     }
     // Add a mark with name for window, overwriting any existing one with that name
     void add(PHLWINDOW window, const std::string &name) {
-        const auto mark = marks.find(name);
-        if (mark != marks.end()) {
-            mark->second = window;
-            post_mark_event(window);
-            return;
+        if (auto search = this->marks.find(name); search != marks.end()){
+            search->second = window;
         }
-        marks[name] = window;
+        else {
+            marks[name] = window;
+        }
         post_mark_event(window);
     }
     void del(const std::string &name) {
-        const auto mark = marks.find(name);
-        if (mark != marks.end()) {
-            if (g_pCompositor->m_lastWindow == mark->second)
+        if (auto search = this->marks.find(name); search != marks.end()){
+            if (g_pCompositor->m_lastWindow == search->second)
                 post_mark_event(nullptr);
-            marks.erase(mark);
+            marks.erase(search);
         }
     }
     // Remove window from list of marks (used when a window gets deleted)
@@ -1248,7 +1246,7 @@ typedef struct JumpData {
     SP<HOOK_CALLBACK_FN> keyPressHookCallback;
 } JumpData;
 
-static JumpData *jump_data;
+static JumpData *jump_data = nullptr;
 
 static std::string generate_label(unsigned int i, const std::string &keys, unsigned int nkeys)
 {
@@ -1282,6 +1280,7 @@ void ScrollerLayout::jump() {
     }
     if (jump_data->workspaces.size() == 0) {
         delete jump_data;
+        jump_data = nullptr;
         jumping = false;
         return;
     }
@@ -1291,6 +1290,7 @@ void ScrollerLayout::jump() {
     }
     if (jump_data->windows.size() == 0) {
         delete jump_data;
+        jump_data = nullptr;
         jumping = false;
         return;
     }
@@ -1302,6 +1302,7 @@ void ScrollerLayout::jump() {
 
     if (jump_data->keys.size() == 1 && jump_data->windows.size() > 1) {
         delete jump_data;
+        jump_data = nullptr;
         jumping = false;
         return;
     }
@@ -1389,6 +1390,7 @@ void ScrollerLayout::jump() {
         info.cancelled = true;
         jump_data->keyPressHookCallback.reset();
         delete jump_data;
+        jump_data = nullptr;
         jumping = false;
     });
 }
@@ -1420,9 +1422,6 @@ void ScrollerLayout::swipe_update(SCallbackInfo &info, IPointer::SSwipeUpdateEve
 
     auto s = getRowForWorkspace(wid);
 
-    static auto *const *HS = (Hyprlang::INT *const *)HyprlandAPI::getConfigValue(PHANDLE, "gestures:workspace_swipe")->getDataStaticPtr();
-    static auto *const *HSFINGERS = (Hyprlang::INT *const *)HyprlandAPI::getConfigValue(PHANDLE, "gestures:workspace_swipe_fingers")->getDataStaticPtr();
-    static auto *const *HSFINGERSMIN = (Hyprlang::INT *const *)HyprlandAPI::getConfigValue(PHANDLE, "gestures:workspace_swipe_min_fingers")->getDataStaticPtr();
     static auto *const *NATURAL = (Hyprlang::INT *const *)HyprlandAPI::getConfigValue(PHANDLE, "input:touchpad:natural_scroll")->getDataStaticPtr();
     static auto *const *HSINVERT = (Hyprlang::INT *const *)HyprlandAPI::getConfigValue(PHANDLE, "gestures:workspace_swipe_invert")->getDataStaticPtr();
     static auto *const *GSENS = (Hyprlang::FLOAT *const *)HyprlandAPI::getConfigValue(PHANDLE, "plugin:scroller:gesture_sensitivity")->getDataStaticPtr();
@@ -1436,12 +1435,6 @@ void ScrollerLayout::swipe_update(SCallbackInfo &info, IPointer::SSwipeUpdateEve
     static auto *const *WDISTANCE = (Hyprlang::INT *const *)HyprlandAPI::getConfigValue(PHANDLE, "plugin:scroller:gesture_workspace_switch_distance")->getDataStaticPtr();
     static auto const *WPREFIX = (Hyprlang::STRING const *)HyprlandAPI::getConfigValue(PHANDLE, "plugin:scroller:gesture_workspace_switch_prefix")->getDataStaticPtr();
 
-    if (**HS &&
-        (**HSFINGERS == swipe_event.fingers ||
-         (**HSFINGERSMIN && swipe_event.fingers >= **HSFINGERS))) {
-        info.cancelled = true; 
-        return;
-    }
 
     if (!(**SENABLE && swipe_event.fingers == **SFINGERS) &&
         !(**OENABLE && swipe_event.fingers == **OFINGERS) &&
