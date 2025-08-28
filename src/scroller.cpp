@@ -1434,6 +1434,7 @@ void ScrollerLayout::swipe_update(SCallbackInfo &info, IPointer::SSwipeUpdateEve
     static auto *const *WFINGERS = (Hyprlang::INT *const *)HyprlandAPI::getConfigValue(PHANDLE, "plugin:scroller:gesture_workspace_switch_fingers")->getDataStaticPtr();
     static auto *const *WDISTANCE = (Hyprlang::INT *const *)HyprlandAPI::getConfigValue(PHANDLE, "plugin:scroller:gesture_workspace_switch_distance")->getDataStaticPtr();
     static auto const *WPREFIX = (Hyprlang::STRING const *)HyprlandAPI::getConfigValue(PHANDLE, "plugin:scroller:gesture_workspace_switch_prefix")->getDataStaticPtr();
+    static auto *const *OWSWAP = (Hyprlang::INT *const *)HyprlandAPI::getConfigValue(PHANDLE, "plugin:scroller:gesture_swap_overview_workspace_direction")->getDataStaticPtr();
 
 
     if (!(**SENABLE && swipe_event.fingers == **SFINGERS) &&
@@ -1460,7 +1461,9 @@ void ScrollerLayout::swipe_update(SCallbackInfo &info, IPointer::SSwipeUpdateEve
         s->scroll_update(swipe_direction, delta);
     } else {
         // Undo natural
-        const Vector2D delta = gesture_delta * (**NATURAL ? -1.0 : 1.0);
+        Vector2D delta = gesture_delta * (**NATURAL ? -1.0 : 1.0);
+        delta = delta.transform(**OWSWAP? HYPRUTILS_TRANSFORM_FLIPPED_90: HYPRUTILS_TRANSFORM_NORMAL, delta);
+        
         if (**OENABLE && swipe_event.fingers == **OFINGERS) {
             // Only accept the first update: one swipe, one trigger.
             if (swipe_active)
